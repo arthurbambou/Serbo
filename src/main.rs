@@ -6,14 +6,15 @@ use rocket::State;
 use std::collections::HashMap;
 use std::fs;
 use std::io;
-use std::io::Error;
-use std::io::{BufRead, BufReader};
+use std::io::{Error,BufRead, BufReader};
 use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
 use std::thread;
 
 #[macro_use]
 extern crate rocket;
+
+const valid_versions:[&'static str;2] = ["1.15.2","1.16.1"];
 
 #[derive(FromForm)]
 struct Target {
@@ -28,9 +29,14 @@ struct VersionTarget{
     target_version: String
 }
 
+#[derive(FromForm)]
+struct createTarget{
+    caller_id: u32
+}
+
 struct ServerInstance {
-    server_process: std::process::Child,
-    stdout_join: Option<std::thread::JoinHandle<()>>,
+    server_process: Child,
+    stdout_join: Option<thread::JoinHandle<()>>,
     port: u32,
 }
 
@@ -83,23 +89,21 @@ fn start_server(id: u32) -> Result<ServerInstance, Error> {
         ])
         .current_dir(format!("servers/{}", id.to_string()));
     let mut child = command.spawn()?;
-    let stdout = child.stdout.take().unwrap();
-    let handle = thread::spawn(|| {
-        let reader = BufReader::new(stdout);
-        reader
-            .lines()
-            .filter_map(|line| line.ok())
-            .for_each(|line| println!("{}", line));
-    });
     Ok(ServerInstance {
         server_process: child,
-        stdout_join: Some(handle),
+        stdout_join: None,
         port: port,
     })
 }
 
 #[post("/version", data = "<target>")]
 fn version(target: Form<VersionTarget>, servers:State<Servers>) -> String {
+    let valid_version = valid_versions.iter().any(|x|{
+        *x == target.target_version
+    });
+    if !valid_version {
+        return String::from("-1");
+    }
     let mut map = servers.refs.lock().expect("locks");
     if let Some(server_inst) = map.get_mut(&target.target_id.to_string()) {
         stop_server(server_inst);
@@ -130,10 +134,20 @@ fn start(target: Form<Target>, servers: State<Servers>) -> String {
     if map.contains_key(&target.target_id.to_string()) {
         return String::from("0");
     }
-    let child = start_server(target.target_id);
-    match child {
-        Ok(x) => {
+    let server_inst = start_server(target.target_id);
+    
+    match server_inst {
+        Ok(mut x) => {
+            let stdout = x.server_process.stdout.take().unwrap();
+            let handle = thread::spawn(|| {
+                let reader = BufReader::new(stdout);
+                reader
+                    .lines()
+                    .filter_map(|line| line.ok())
+                    .for_each(|line| println!("{}", line));
+            });
             let port = x.port.to_string();
+            x.stdout_join = Some(handle);
             map.insert(target.target_id.to_string(), x);
             return String::from(port);
         },
@@ -155,7 +169,7 @@ fn delete(target: Form<Target>, servers:State<Servers>) -> String {
 }
 
 #[post("/create", data = "<target>")]
-fn create(target: Form<Target>) -> String {
+fn create(target: Form<createTarget>) -> String {
     match create_server() {
         Ok(id) => return String::from(id.to_string()),
         Err(e) => return String::from("-1")
