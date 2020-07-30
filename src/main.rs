@@ -9,12 +9,13 @@ use std::io;
 use std::io::{BufRead, BufReader, Error};
 use std::net::TcpListener;
 use std::process::{Child, Command, Stdio};
-use std::sync::mpsc;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 use std::thread::sleep;
 use std::time;
+use tungstenite::server::accept;
+use rocket_contrib::json::Json;
 
 #[macro_use]
 extern crate rocket;
@@ -39,9 +40,17 @@ struct CreateTarget {
     caller_id: u32,
 }
 
+#[derive(FromForm)]
+struct ConsoleTarget {
+    caller_id: u32,
+    target_id: u32,
+    start_line: u32
+}
+
 struct ServerInstance {
     server_process: Child,
     stdout_join: Option<thread::JoinHandle<()>>,
+    console_log: Arc<Mutex<Vec<String>>>,
     port: u32,
 }
 
@@ -96,13 +105,15 @@ fn start_server(id: u32) -> Result<ServerInstance, Error> {
             &port.to_string(),
         ])
         .current_dir(format!("servers/{}", id.to_string()));
-    let mut child = command.spawn()?;
+    let child = command.spawn()?;
     Ok(ServerInstance {
         server_process: child,
         stdout_join: None,
+        console_log:Arc::new(Mutex::new(Vec::new())),
         port: port,
     })
 }
+
 
 #[post("/version", data = "<target>")]
 fn version(target: Form<VersionTarget>, servers: State<Servers>) -> String {
@@ -131,10 +142,27 @@ fn stop(target: Form<Target>, servers: State<Servers>) -> String {
         return String::from("-1");
     }
     let server_inst = map.get_mut(&target.target_id.to_string()).unwrap();
-    let port = server_inst.port.to_string();
     stop_server(server_inst);
     map.remove(&target.target_id.to_string());
     String::from("1")
+}
+
+#[post("/getConsole", data="<target>")]
+fn get_console(target: Form<ConsoleTarget>, servers:State<Servers>) -> Json<Vec<String>>{
+    let mut map = servers.refs.lock().expect("locks");
+    if let Some(server_inst) = map.get_mut(&target.target_id.to_string()) {
+        let lock = server_inst.console_log.clone();
+        let mut start_line = target.start_line as usize;
+        let orig = &lock.lock().unwrap().clone();
+        if start_line > orig.len(){
+            start_line = orig.len();
+        }
+        let cl = Vec::from(&orig[start_line..]);
+        return Json(cl);
+    }
+    else{
+        return Json(Vec::new());
+    }
 }
 
 #[post("/start", data = "<target>")]
@@ -148,39 +176,13 @@ fn start(target: Form<Target>, servers: State<Servers>) -> String {
         Ok(mut x) => {
             let port = x.port.clone().to_string();
             let mut rng = thread_rng();
-
             let stdout = x.server_process.stdout.take().unwrap();
-            let ws_port = rng.gen_range(45565, 55565);
-            let ws = TcpListener::bind(format!("127.0.0.1:{}", ws_port)).unwrap();
-
-            println!("{} port", ws_port);
-
-            let lines: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
-            let stdout_reader_mutex = lines.clone();
-            let ws_thread_handle = thread::spawn(move || {
-                let mut client_count = 0;
-                for stream in ws.incoming() {
-                    let mutex = lines.clone();
-                    client_count += 1;
-                    thread::spawn(move || {
-                        let mut counter = 0;
-                        loop {
-                            let mut stdout_lines = mutex.lock().expect("locks");
-                            for x in counter..stdout_lines.len(){
-                                println!("{} output {}", stdout_lines[x], client_count);
-                                counter += 1;
-                            }
-                            drop(stdout_lines);
-                            sleep(time::Duration::from_secs(2));
-                        }
-                    });
-                }
-            });
+            let lock = x.console_log.clone();
             let stdout_thread_handle = thread::spawn(move || {
                 let reader = BufReader::new(stdout).lines();
                 reader.filter_map(|line| line.ok()).for_each(|line| {
-                    let mut stdout_lines = stdout_reader_mutex.lock().expect("locks");
-                    stdout_lines.push(line);
+                    let mut lock = lock.lock().unwrap();
+                    lock.push(line);
                 })
             });
             x.stdout_join = Some(stdout_thread_handle);
@@ -217,6 +219,6 @@ fn main() {
         .manage(Servers {
             refs: Mutex::new(HashMap::new()),
         })
-        .mount("/", routes![create, start, stop, delete, version])
+        .mount("/", routes![create, start, stop, delete, version,get_console])
         .launch();
 }
