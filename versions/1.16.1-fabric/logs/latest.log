@@ -1,0 +1,111 @@
+[15:36:51] [main/INFO]: Loading for game Minecraft 1.16.1
+[15:36:52] [main/INFO]: [FabricLoader] Loading 5 mods: minecraft@1.16.1, lithium@0.5.1, fabricloader@0.9.0+build.204, carpet@1.4.0, phosphor@0.6.0+build.7
+[15:36:52] [main/INFO]: SpongePowered MIXIN Subsystem Version=0.8 Source=file:/home/reedkrawiec/projects/serbo/servers/1/fabric-server-launch.jar Service=Knot/Fabric Env=SERVER
+[15:36:57] [main/INFO]: Loaded configuration file for Lithium: 54 options available, 0 override(s) found
+[15:37:08] [main/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', name='PROD'
+[15:37:13] [main/WARN]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[15:37:13] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[15:37:13] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[15:37:13] [main/WARN]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[15:37:13] [main/WARN]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[15:37:14] [main/INFO]: Reloading ResourceManager: Default
+[15:37:16] [Worker-Main-5/INFO]: Loaded 7 recipes
+[15:37:18] [Worker-Main-5/INFO]: Loaded 927 advancements
+[15:37:19] [Server thread/INFO]: Starting minecraft server version 1.16.1
+[15:37:19] [Server thread/INFO]: Loading properties
+[15:37:19] [Server thread/INFO]: Default game type: SURVIVAL
+[15:37:19] [Server thread/INFO]: Generating keypair
+[15:37:20] [Server thread/INFO]: Starting Minecraft server on *:25565
+[15:37:20] [Server thread/INFO]: Using epoll channel type
+[15:37:21] [Server thread/INFO]: Preparing level "world"
+[15:37:30] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[15:37:31] [Worker-Main-6/INFO]: Preparing spawn area: 0%
+[15:37:31] [Worker-Main-6/INFO]: Preparing spawn area: 0%
+[15:37:31] [Worker-Main-6/INFO]: Preparing spawn area: 0%
+[15:37:32] [Worker-Main-6/INFO]: Preparing spawn area: 0%
+[15:37:32] [Worker-Main-5/INFO]: Preparing spawn area: 0%
+[15:37:33] [Worker-Main-5/INFO]: Preparing spawn area: 0%
+[15:37:33] [Worker-Main-5/INFO]: Preparing spawn area: 0%
+[15:37:34] [Worker-Main-4/INFO]: Preparing spawn area: 0%
+[15:37:34] [Worker-Main-4/INFO]: Preparing spawn area: 0%
+[15:37:35] [Worker-Main-4/INFO]: Preparing spawn area: 0%
+[15:37:35] [Worker-Main-5/INFO]: Preparing spawn area: 1%
+[15:37:36] [Worker-Main-5/INFO]: Preparing spawn area: 1%
+[15:37:36] [Worker-Main-5/INFO]: Preparing spawn area: 4%
+[15:37:37] [Worker-Main-5/INFO]: Preparing spawn area: 5%
+[15:37:37] [Worker-Main-5/INFO]: Preparing spawn area: 5%
+[15:37:38] [Worker-Main-5/INFO]: Preparing spawn area: 5%
+[15:37:38] [Worker-Main-5/INFO]: Preparing spawn area: 9%
+[15:37:39] [Worker-Main-5/INFO]: Preparing spawn area: 9%
+[15:37:39] [Worker-Main-5/INFO]: Preparing spawn area: 14%
+[15:37:40] [Worker-Main-5/INFO]: Preparing spawn area: 16%
+[15:37:40] [Worker-Main-5/INFO]: Preparing spawn area: 16%
+[15:37:41] [Worker-Main-5/INFO]: Preparing spawn area: 16%
+[15:37:41] [Worker-Main-5/INFO]: Preparing spawn area: 16%
+[15:37:42] [Worker-Main-5/INFO]: Preparing spawn area: 22%
+[15:37:42] [Worker-Main-5/INFO]: Preparing spawn area: 22%
+[15:37:43] [Worker-Main-5/INFO]: Preparing spawn area: 22%
+[15:37:43] [Worker-Main-5/INFO]: Preparing spawn area: 25%
+[15:37:44] [Worker-Main-5/INFO]: Preparing spawn area: 25%
+[15:37:44] [Worker-Main-5/INFO]: Preparing spawn area: 25%
+[15:37:45] [Worker-Main-4/INFO]: Preparing spawn area: 29%
+[15:37:45] [Worker-Main-4/INFO]: Preparing spawn area: 31%
+[15:37:46] [Worker-Main-4/INFO]: Preparing spawn area: 31%
+[15:37:47] [Worker-Main-4/INFO]: Preparing spawn area: 31%
+[15:37:47] [Worker-Main-4/INFO]: Preparing spawn area: 31%
+[15:37:47] [Worker-Main-4/INFO]: Preparing spawn area: 33%
+[15:37:48] [Worker-Main-4/INFO]: Preparing spawn area: 33%
+[15:37:48] [Worker-Main-4/INFO]: Preparing spawn area: 39%
+[15:37:49] [Worker-Main-4/INFO]: Preparing spawn area: 39%
+[15:37:49] [Worker-Main-4/INFO]: Preparing spawn area: 39%
+[15:37:50] [Worker-Main-5/INFO]: Preparing spawn area: 39%
+[15:37:52] [Worker-Main-4/INFO]: Preparing spawn area: 39%
+[15:37:52] [Worker-Main-4/INFO]: Preparing spawn area: 39%
+[15:37:52] [Worker-Main-4/INFO]: Preparing spawn area: 39%
+[15:37:52] [Worker-Main-4/INFO]: Preparing spawn area: 39%
+[15:37:52] [Worker-Main-4/INFO]: Preparing spawn area: 39%
+[15:37:53] [Worker-Main-4/INFO]: Preparing spawn area: 50%
+[15:37:53] [Worker-Main-4/INFO]: Preparing spawn area: 50%
+[15:37:54] [Worker-Main-4/INFO]: Preparing spawn area: 54%
+[15:37:54] [Worker-Main-4/INFO]: Preparing spawn area: 54%
+[15:37:55] [Worker-Main-4/INFO]: Preparing spawn area: 54%
+[15:37:55] [Worker-Main-4/INFO]: Preparing spawn area: 57%
+[15:37:56] [Worker-Main-5/INFO]: Preparing spawn area: 57%
+[15:37:57] [Worker-Main-5/INFO]: Preparing spawn area: 57%
+[15:37:57] [Worker-Main-5/INFO]: Preparing spawn area: 57%
+[15:37:59] [Worker-Main-4/INFO]: Preparing spawn area: 62%
+[15:37:59] [Worker-Main-5/INFO]: Preparing spawn area: 62%
+[15:37:59] [Worker-Main-5/INFO]: Preparing spawn area: 62%
+[15:37:59] [Worker-Main-4/INFO]: Preparing spawn area: 68%
+[15:37:59] [Worker-Main-4/INFO]: Preparing spawn area: 68%
+[15:38:00] [Worker-Main-4/INFO]: Preparing spawn area: 70%
+[15:38:01] [Worker-Main-5/INFO]: Preparing spawn area: 72%
+[15:38:02] [Worker-Main-4/INFO]: Preparing spawn area: 73%
+[15:38:02] [Worker-Main-4/INFO]: Preparing spawn area: 73%
+[15:38:02] [Worker-Main-5/INFO]: Preparing spawn area: 73%
+[15:38:03] [Worker-Main-4/INFO]: Preparing spawn area: 77%
+[15:38:03] [Worker-Main-4/INFO]: Preparing spawn area: 77%
+[15:38:03] [Worker-Main-5/INFO]: Preparing spawn area: 83%
+[15:38:04] [Worker-Main-4/INFO]: Preparing spawn area: 86%
+[15:38:04] [Worker-Main-4/INFO]: Preparing spawn area: 86%
+[15:38:05] [Worker-Main-5/INFO]: Preparing spawn area: 87%
+[15:38:06] [Worker-Main-4/INFO]: Preparing spawn area: 90%
+[15:38:06] [Worker-Main-5/INFO]: Preparing spawn area: 92%
+[15:38:06] [Worker-Main-5/INFO]: Preparing spawn area: 93%
+[15:38:07] [Worker-Main-5/INFO]: Preparing spawn area: 96%
+[15:38:07] [Server thread/INFO]: Time elapsed: 36922 ms
+[15:38:07] [Server thread/INFO]: Done (46.564s)! For help, type "help"
+[15:46:12] [User Authenticator #1/INFO]: UUID of player sprdsprd is b55e710f-d8b1-4ad1-aa1e-0754d63bf69b
+[15:46:13] [Server thread/INFO]: sprdsprd[/127.0.0.1:54264] logged in with entity id 102 at (164.5, 70.0, 69.5)
+[15:46:13] [Server thread/INFO]: sprdsprd joined the game
+[15:46:20] [Netty Epoll Server IO #1/INFO]: Player sprdsprd joined with a matching carpet client
+[15:47:47] [Server thread/INFO]: Made sprdsprd a server operator
+[15:48:15] [Server thread/INFO]: [sprdsprd: Set own game mode to Creative Mode]
+[15:49:18] [Server thread/INFO]: [sprdsprd: Carpet Mod version: 1.4.0+v200623]
+[15:49:29] [Server thread/INFO]: [sprdsprd: fastRedstoneDust: true, [change permanently?]]
+[15:49:32] [Server thread/INFO]: [sprdsprd: lagFreeSpawning: true, [change permanently?]]
+[15:50:13] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2104ms or 42 ticks behind
+[15:50:14] [Server thread/INFO]: [sprdsprd: sprdsprd subscribed to tps.]
+[15:51:09] [Server thread/INFO]: sprdsprd has made the advancement [Monster Hunter]
+[15:51:41] [Server thread/INFO]: sprdsprd lost connection: Disconnected
+[15:51:41] [Server thread/INFO]: sprdsprd left the game

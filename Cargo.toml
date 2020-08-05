@@ -15,6 +15,8 @@ features = ["json"]
 rocket = "0.4.5"
 rand = "0.7.3"
 tungstenite = "0.11.0"
+copy_dir = "0.1.2"
+
 
 [lib]
 name = "serbo"
