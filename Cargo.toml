@@ -8,6 +8,7 @@ description = "Easy Minecraft server management."
 keywords = ["management", "server","Minecraft","manager"]
 repository = "https://github.com/ReedKrawiec/Serbo"
 readme = "README.md"
+exclude = ["versions/**/*"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
