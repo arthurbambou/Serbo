@@ -3,20 +3,16 @@ name = "serbo-mc"
 version = "0.1.0"
 authors = ["Reed Krawiec <reedkrawiec@gmail.com>"]
 edition = "2018"
+license = "MIT"
+description = "Easy Minecraft server management."
+keywords = ["management", "server","Minecraft","manager"]
+repository = "https://github.com/ReedKrawiec/Serbo"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies.rocket_contrib]
-version = "0.4.5"
-default-features = false
-features = ["json"]
-
 [dependencies]
-rocket = "0.4.5"
-rand = "0.7.3"
-tungstenite = "0.11.0"
 copy_dir = "0.1.2"
-
 
 [lib]
 name = "serbo"
