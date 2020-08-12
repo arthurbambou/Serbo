@@ -12,6 +12,7 @@ Cargo.lock
 
 #Added by cargo
 
+src/main.rs
 /target
 /servers/*
 /versions/*
