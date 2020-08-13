@@ -101,7 +101,7 @@ use std::fs;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::Path;
 use std::process::{Child, Command, Stdio};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 use std::thread::sleep;
 use std::time;
@@ -126,7 +126,7 @@ pub enum Error {
   /// May occur due to the server process being killed, the server crashing or ingame methods
   /// to stop the server
   ServerProcessExited(String),
-
+  ServerStillStarting(String)
 }
 
 impl std::error::Error for Error {
@@ -138,7 +138,8 @@ impl std::error::Error for Error {
       Error::ServerAlreadyExists(_) => "ServerAlreadyExists",
       Error::ThreadError(_, _) => "ThreadError",
       Error::ServerProcessExited(_) => "ServerProcessExited",
-      Error::ServerAlreadyOnline(_) => "ServerAlreadyOnline"
+      Error::ServerAlreadyOnline(_) => "ServerAlreadyOnline",
+      Error::ServerStillStarting(_) => "ServerStillStarting"
     }
   }
 }
@@ -150,15 +151,10 @@ impl fmt::Display for Error {
       Error::ServerFilesMissing(ref a) => write!(f, "Server files not found for id:{}", a),
       Error::ServerOffline(ref a) => write!(f, "Server with id:{} offline while called.", a),
       Error::ServerAlreadyExists(ref a) => write!(f, "Server files already exists with id:{}", a),
-      Error::ThreadError(ref a, ref b) => {
-        write!(f, "Error while creating {} thread for server id:{}", a, b)
-      }
-      Error::ServerProcessExited(ref a) => {
-        write!(f, "Server processes needed for id:{}, but has unexpectedly exited.",a)
-      },
-      Error::ServerAlreadyOnline(ref a) => {
-        write!(f,"Attempted to start already online server with id:{}",a)
-      }
+      Error::ThreadError(ref a, ref b) => write!(f, "Error while creating {} thread for server id:{}", a, b),
+      Error::ServerProcessExited(ref a) => write!(f,"Server processes needed for id:{}, but has unexpectedly exited.",a),
+      Error::ServerAlreadyOnline(ref a) => write!(f, "Attempted to start already online server with id:{}", a),
+      Error::ServerStillStarting(ref a) => write!(f, "Attempted to stop a server with id:{} that's mid-loading",a)
     }
   }
 }
@@ -291,6 +287,8 @@ impl Manager {
         stdin_join: None,
         console_log: Arc::new(Mutex::new(Vec::new())),
         stdin_queue: Arc::new(Mutex::new(Vec::new())),
+        thread_cond: Arc::new(RwLock::new(true)),
+        starting: Arc::new(RwLock::new(true)),
         port: port,
         id: id.to_string(),
       };
@@ -303,31 +301,59 @@ impl Manager {
         None => return Err(Error::ThreadError("stdin".to_string(), id.to_string())),
       };
 
+      let starting_lock = serv_inst.starting.clone();
       let stdout_arc = serv_inst.console_log.clone();
       let stdin_arc = serv_inst.stdin_queue.clone();
+      let cond_reader1 = serv_inst.thread_cond.clone();
+      let cond_reader2 = serv_inst.thread_cond.clone();
 
       let stdout_thread_handle = thread::spawn(move || {
-        let reader = BufReader::new(stdout).lines();
-        reader.filter_map(|line| line.ok()).for_each(|line| {
-          let mut lock = stdout_arc.lock().unwrap();
-          lock.push(line);
-        });
+        let mut reader = BufReader::new(stdout).lines();
+        loop {
+          let r1 = cond_reader1.read().unwrap();
+          if !*r1{
+            break;
+          }
+          drop(r1);
+          if let Some(line) = reader.next() {
+            match line {
+              Ok(a) => {
+                
+                let b = &a[33..];
+                if b == "[Server] SERVER READY"{
+                  println!("READY");
+                  let mut g = starting_lock.write().unwrap();
+                  *g = false;
+                }
+                
+                let mut lock = stdout_arc.lock().unwrap();
+                lock.push(a);
+              },
+              _ => {}
+            };
+          }
+        }
       });
 
       let stdin_thread_handle = thread::spawn(move || {
         let mut writer = BufWriter::new(stdin);
         loop {
           let mut vec = stdin_arc.lock().unwrap();
+          let r1 = cond_reader2.read().unwrap();
+          if !*r1 && vec.len() == 0{
+            break;
+          }
+          drop(r1);
           vec.drain(..).for_each(|x| {
             writeln!(writer, "{}", x);
             writer.flush();
           });
           drop(vec);
-          sleep(time::Duration::from_secs(2));
         }
       });
-      serv_inst.stdin_join = Some(stdin_thread_handle);
+      serv_inst.send("/say SERVER READY".to_string())?;
       serv_inst.stdout_join = Some(stdout_thread_handle);
+      serv_inst.stdin_join = Some(stdin_thread_handle);
       &self.servers.insert(id.to_string(), serv_inst);
       Ok(port)
     }
@@ -336,14 +362,22 @@ impl Manager {
   /// # Arguments
   /// * `id` - The id that represents the requested server
   pub fn stop(&mut self, id: &str) -> Result<()> {
-    let serv = self.servers.get_mut(id);
-    if let Some(inst) = serv {
-      inst.stop()?;
-      println!("WWW");
-      inst.stdout_join.take().unwrap().join();
-      inst.stdin_join.take().unwrap().join();
-      println!("DDD");
-      return Ok(());
+    if let Some(inst) = self.servers.get_mut(id) {
+      let is_starting = *inst.starting.read().unwrap();
+      if !is_starting{
+        inst.stop()?;
+        let rw = inst.thread_cond.clone();
+        let mut d = rw.write().unwrap();
+        *d = false;
+        drop(d);
+        drop(rw);
+        inst.stdout_join.take().unwrap().join();
+        inst.stdin_join.take().unwrap().join();
+        inst.server_process.wait();
+        self.servers.remove(id);
+        return Ok(());
+      }
+      return Err(Error::ServerStillStarting(id.to_string()));
     }
     Err(Error::ServerOffline(id.to_string()))
   }
@@ -382,12 +416,15 @@ impl Manager {
 
 /// Represents a currently online server.
 /// Created by calling [start](struct.Manager.html#method.start) from a [Manager](struct.Manager.html)
+#[derive(Debug)]
 pub struct Instance {
   pub server_process: Child,
   stdout_join: Option<thread::JoinHandle<()>>,
   stdin_join: Option<thread::JoinHandle<()>>,
   console_log: Arc<Mutex<Vec<String>>>,
   stdin_queue: Arc<Mutex<Vec<String>>>,
+  thread_cond: Arc<RwLock<bool>>,
+  starting: Arc<RwLock<bool>>,
   pub port: u32,
   pub id: String,
 }
