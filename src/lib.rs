@@ -284,16 +284,17 @@ impl Manager {
           if let Some(line) = reader.next() {
             match line {
               Ok(a) => {
-                
-                let b = &a[33..];
-                if b == "[Server] SERVER READY"{
-                  println!("READY");
-                  let mut g = starting_lock.write().unwrap();
-                  *g = false;
+                if a.len() >= 33  {
+                  let b = &a[33..];
+                  if b == "[Server] SERVER READY"{
+                    println!("READY");
+                    let mut g = starting_lock.write().unwrap();
+                    *g = false;
+                  }
+
+                  let mut lock = stdout_arc.lock().unwrap();
+                  lock.push(a);
                 }
-                
-                let mut lock = stdout_arc.lock().unwrap();
-                lock.push(a);
               },
               _ => {}
             };
