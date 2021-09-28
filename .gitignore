@@ -16,3 +16,4 @@ src/main.rs
 /target
 /servers/*
 /versions/*
+.idea/
