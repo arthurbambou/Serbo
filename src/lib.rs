@@ -284,17 +284,15 @@ impl Manager {
           if let Some(line) = reader.next() {
             match line {
               Ok(a) => {
-                if a.len() >= 33  {
-                  let b = &a[33..];
-                  if b == "[Server] SERVER READY"{
-                    println!("READY");
-                    let mut g = starting_lock.write().unwrap();
-                    *g = false;
-                  }
-
-                  let mut lock = stdout_arc.lock().unwrap();
-                  lock.push(a);
+                let b = &a[33..];
+                if b == "[Server] SERVER READY"{
+                  println!("READY");
+                  let mut g = starting_lock.write().unwrap();
+                  *g = false;
                 }
+
+                let mut lock = stdout_arc.lock().unwrap();
+                lock.push(a);
               },
               _ => {}
             };
@@ -318,8 +316,8 @@ impl Manager {
           drop(vec);
         }
       });
-      serv_inst.send("/say SERVER READY".to_string())?;
       serv_inst.send("say SERVER READY".to_string())?;
+      serv_inst.send("/say SERVER READY".to_string())?;
       serv_inst.stdout_join = Some(stdout_thread_handle);
       serv_inst.stdin_join = Some(stdin_thread_handle);
       self.server.insert(serv_inst);
