@@ -256,6 +256,7 @@ impl Manager {
         stdin_queue: Arc::new(Mutex::new(Vec::new())),
         thread_cond: Arc::new(RwLock::new(true)),
         starting: Arc::new(RwLock::new(true)),
+        started: false,
         port
       };
       let stdout = match serv_inst.server_process.stdout.take() {
@@ -328,7 +329,7 @@ impl Manager {
   /// * `id` - The id that represents the requested server
   pub fn stop(&mut self) -> Result<()> {
     if let Some(ref mut inst) = self.server {
-      let is_starting = *inst.starting.read().unwrap();
+      let is_starting = *inst.starting.read().unwrap() || inst.started;
       if !is_starting{
         inst.stop()?;
         let rw = inst.thread_cond.clone();
@@ -359,6 +360,7 @@ pub struct Instance {
   stdin_queue: Arc<Mutex<Vec<String>>>,
   thread_cond: Arc<RwLock<bool>>,
   starting: Arc<RwLock<bool>>,
+  started: bool,
   pub port: u32,
 }
 
@@ -410,5 +412,9 @@ impl Instance {
       start_line = vec.len()
     }
     Vec::from(&vec[start_line..])
+  }
+
+  pub fn started(&mut self) {
+    self.started = true;
   }
 }
