@@ -319,6 +319,7 @@ impl Manager {
         }
       });
       serv_inst.send("/say SERVER READY".to_string())?;
+      serv_inst.send("say SERVER READY".to_string())?;
       serv_inst.stdout_join = Some(stdout_thread_handle);
       serv_inst.stdin_join = Some(stdin_thread_handle);
       self.server.insert(serv_inst);
