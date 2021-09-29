@@ -284,7 +284,7 @@ impl Manager {
           if let Some(line) = reader.next() {
             match line {
               Ok(a) => {
-                if a.contains("[Server] SERVER READY"){
+                if a.contains("[Server] SERVER READY") || a.contains("[CONSOLE] SERVER READY"){
                   println!("READY");
                   let mut g = starting_lock.write().unwrap();
                   *g = false;
