@@ -329,8 +329,8 @@ impl Manager {
   /// * `id` - The id that represents the requested server
   pub fn stop(&mut self) -> Result<()> {
     if let Some(ref mut inst) = self.server {
-      let is_starting = *inst.starting.read().unwrap() || inst.started;
-      if !is_starting{
+      let is_starting = *inst.starting.read().unwrap();
+      if !is_starting || inst.started {
         inst.stop()?;
         let rw = inst.thread_cond.clone();
         let mut d = rw.write().unwrap();
