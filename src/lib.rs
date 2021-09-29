@@ -284,8 +284,7 @@ impl Manager {
           if let Some(line) = reader.next() {
             match line {
               Ok(a) => {
-                let b = &a[33..];
-                if b == "[Server] SERVER READY"{
+                if a.contains("[Server] SERVER READY"){
                   println!("READY");
                   let mut g = starting_lock.write().unwrap();
                   *g = false;
